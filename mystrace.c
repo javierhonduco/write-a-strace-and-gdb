@@ -17,7 +17,6 @@ void die(char* message){
 	exit(-1);
 }
 
-
 void tracee(){
 	printf("I'm the tracee with pid=%d\n", getpid());
 	if(ptrace(PTRACE_TRACEME, NULL, NULL, NULL)<0){
@@ -84,5 +83,5 @@ int main(int argc, char* arg[]){
 			tracer(pid);
 			break;
 	}
-	return 1;
+	return 0;
 }

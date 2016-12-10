@@ -1,15 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/ptrace.h>
 #include <sys/wait.h>
 #include <sys/user.h>
 #include <unistd.h>
 #include "mystrace.h"
 
-char* cmd[] = {
-	"ls",
-	NULL
-};
 int child_status;
 
 void die(char* message){
@@ -17,7 +14,7 @@ void die(char* message){
 	exit(-1);
 }
 
-void tracee(){
+void tracee(char* cmd[]){
 	printf("I'm the tracee with pid=%d\n", getpid());
 	if(ptrace(PTRACE_TRACEME, NULL, NULL, NULL)<0){
 		die("error traceing myself");
@@ -25,13 +22,20 @@ void tracee(){
 	execvp(cmd[0], cmd);
 }
 
-void show_syscall(int syscall_no, int syscall_ret){
-	char * syscall_name = syscall_table[syscall_no];
-	char * ox = "";
-	if(syscall_ret > 15){
-		ox = "0x";
+void tracee_with_pid(int pid){
+	// todo: detach later
+	if(ptrace(PTRACE_ATTACH, pid, NULL, NULL)<0){
+		die("error attaching to a pid\n does the pid exist? are you root?");
 	}
-	printf("%-10s = %s%x\n", syscall_name, ox, syscall_ret);
+}
+
+void show_syscall(int syscall_no, int syscall_ret){
+	char* syscall_name = syscall_table[syscall_no];
+	char* return_prefix = "";
+	if(syscall_ret > 15){
+		return_prefix = "0x";
+	}
+	printf("%-15s = %s%x\n", syscall_name, return_prefix, syscall_ret);
 }
 
 void tracer(int child_pid){
@@ -43,12 +47,12 @@ void tracer(int child_pid){
 	enum syscall_state syscall_state = PRE_SYSCALL;
 	struct user_regs_struct tracee_regs;
 	while(1){
-		syscall_count += 1;
 
 		if(ptrace(PTRACE_SYSCALL, child_pid, NULL, NULL)<0){
 			die("error tracing syscalls");
 		}
 		wait(&child_status);
+		syscall_count += 1;
 
 		if(WIFEXITED(child_status)){
 			printf("exited in %d syscalls with status=%d\n", syscall_count, child_status);
@@ -70,18 +74,34 @@ void tracer(int child_pid){
 	}
 }
 
-int main(int argc, char* arg[]){
-	int pid = fork();
-	switch(pid){
-		case -1:
-			die("error forking");
-			break;
-		case 0:
-			tracee();
-			break;
-		default: 
-			tracer(pid);
-			break;
+int main(int argc, char* argv[]){
+	char* usage_banner = "usage: ./mystrace [<cmd>|-p <pid>]";
+
+	if(argc < 2){
+		die(usage_banner);
+	}
+
+	// really simple parsing
+	if(strcmp(argv[1], "-p")==0){
+		if(argc < 3){
+			die(usage_banner);
+		}
+		int pid = atoi(argv[2]);
+		tracee_with_pid(pid);
+		tracer(pid);
+	}else{
+		int pid = fork();
+		switch(pid){
+			case -1:
+				die("error forking");
+				break;
+			case 0:
+				tracee(argv+1);
+				break;
+			default: 
+				tracer(pid);
+				break;
+		}
 	}
 	return 0;
 }

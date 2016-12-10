@@ -29,7 +29,7 @@ void tracee_with_pid(int pid){
   }
 }
 
-void show_syscall(int syscall_no, int syscall_ret){
+void show_syscall(unsigned int syscall_no, unsigned int syscall_ret){
   char* syscall_name = syscall_table[syscall_no];
   char* return_prefix = "";
   if(syscall_ret > 15){
@@ -63,8 +63,8 @@ void tracer(int child_pid){
       die("error getting registers");
     }
     if(syscall_state == POST_SYSCALL){
-      int current_syscall_no = tracee_regs.orig_rax;
-      int current_syscall_return = tracee_regs.rax;
+      unsigned int current_syscall_no = tracee_regs.orig_rax;
+      unsigned int current_syscall_return = tracee_regs.rax;
       show_syscall(current_syscall_no, current_syscall_return);
       syscall_state = PRE_SYSCALL;
     }else{

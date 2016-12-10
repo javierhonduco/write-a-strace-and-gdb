@@ -1,3 +1,6 @@
+CC = gcc
+CFLAGS = -Wall -Wextra -Werror -Wshadow -pedantic
+SOURCE = mygdb
+
 all:
-	gcc mygdb.c -o mygdb
-	./mygdb ls
+	$(CC) $(SOURCE).c -o $(SOURCE) $(CFLAGS)

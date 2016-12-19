@@ -29,7 +29,7 @@ void tracee_with_pid(int pid){
 }
 
 int prompt_user(struct user_regs_struct *regs){
-  char* prompt_symbol = "=> ";
+  const char* prompt_symbol = "=> ";
   int prompt_buffer = 200;
 
   for(;;){

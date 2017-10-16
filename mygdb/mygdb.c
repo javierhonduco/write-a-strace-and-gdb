@@ -33,7 +33,7 @@ int prompt_user(struct user_regs_struct *regs){
   int prompt_buffer = 200;
 
   for(;;){
-    printf(prompt_symbol);
+    puts(prompt_symbol);
     char action[prompt_buffer];
     scanf("%s", action);
 

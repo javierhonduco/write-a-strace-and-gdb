@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include "mygdb.h"
 
-int child_status;
 
 void die(char* message){
   printf("failed with message: '%s'\n", message);
@@ -30,10 +29,11 @@ void tracee_with_pid(int pid){
 }
 
 int prompt_user(struct user_regs_struct *regs){
+  const char* prompt_symbol = "=> ";
   int prompt_buffer = 200;
 
   for(;;){
-    printf("=> ");
+    puts(prompt_symbol);
     char action[prompt_buffer];
     scanf("%s", action);
 
@@ -53,8 +53,11 @@ int prompt_user(struct user_regs_struct *regs){
 }
 
 void tracer(int child_pid){
+  int child_status;
+
   printf("I'm the tracer with pid=%d\n", getpid());
   printf("child_status=%d\n", child_status);
+
   wait(&child_status);
 
   int steps_count = 0;

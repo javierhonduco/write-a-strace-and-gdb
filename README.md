@@ -18,4 +18,4 @@ $ ./mygdb ls
 
 #### Compiler and Linux versions
 * Linux: 4.8.6-1-ARCH x86_64 GNU/Linux
-* GCC: 6.2.1 
+* GCC: 6.2.1

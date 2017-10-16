@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include "mystrace.h"
 
-int child_status;
 
 void die(char* message){
   printf("failed with message: '%s'\n", message);
@@ -39,8 +38,11 @@ void show_syscall(unsigned int syscall_no, unsigned int syscall_ret){
 }
 
 void tracer(int child_pid){
+  int child_status;
+
   printf("I'm the tracer with pid=%d\n", getpid());
   printf("child_status=%d\n", child_status);
+
   wait(&child_status);
 
   int syscall_count = 0;

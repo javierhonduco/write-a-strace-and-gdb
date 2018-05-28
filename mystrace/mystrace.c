@@ -24,7 +24,7 @@ void tracee(char* cmd[]){
 void tracee_with_pid(int pid){
   // todo: detach later
   if(ptrace(PTRACE_ATTACH, pid, NULL, NULL)<0){
-    die("error attaching to a pid\n does the pid exist? are you root?");
+    die("error attaching to a pid\ndoes the pid exist? are you root?");
   }
 }
 
@@ -41,9 +41,9 @@ void tracer(int child_pid){
   int child_status;
 
   printf("I'm the tracer with pid=%d\n", getpid());
-  printf("child_status=%d\n", child_status);
 
   wait(&child_status);
+  printf("child_status=%d\n", child_status);
 
   int syscall_count = 0;
   enum syscall_state syscall_state = PRE_SYSCALL;
